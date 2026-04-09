@@ -1,0 +1,258 @@
+[
+  {
+    "item_id": 0,
+    "class": "short_sleeve_top",
+    "crop": "apparel_0_short_sleeve_top.jpg",
+    "first_visible_time": "00:00:00",
+    "last_visible_time": "00:00:02",
+    "best_visible_time": "00:00:02"
+  },
+  {
+    "item_id": 1,
+    "class": "long_sleeve_dress",
+    "crop": "apparel_1_long_sleeve_dress.jpg",
+    "first_visible_time": "00:00:00",
+    "last_visible_time": "00:00:02",
+    "best_visible_time": "00:00:02"
+  },
+  {
+    "item_id": 2,
+    "class": "long_sleeve_top",
+    "crop": "apparel_2_long_sleeve_top.jpg",
+    "first_visible_time": "00:00:02",
+    "last_visible_time": "00:00:02",
+    "best_visible_time": "00:00:02"
+  },
+  {
+    "item_id": 3,
+    "class": "long_sleeve_outwear",
+    "crop": "apparel_3_long_sleeve_outwear.jpg",
+    "first_visible_time": "00:00:03",
+    "last_visible_time": "00:00:03",
+    "best_visible_time": "00:00:03"
+  },
+  {
+    "item_id": 4,
+    "class": "short_sleeve_top",
+    "crop": "apparel_4_short_sleeve_top.jpg",
+    "first_visible_time": "00:00:05",
+    "last_visible_time": "00:00:06",
+    "best_visible_time": "00:00:06"
+  },
+  {
+    "item_id": 5,
+    "class": "long_sleeve_outwear",
+    "crop": "apparel_5_long_sleeve_outwear.jpg",
+    "first_visible_time": "00:00:07",
+    "last_visible_time": "00:00:08",
+    "best_visible_time": "00:00:07"
+  },
+  {
+    "item_id": 6,
+    "class": "short_sleeve_top",
+    "crop": "apparel_6_short_sleeve_top.jpg",
+    "first_visible_time": "00:00:07",
+    "last_visible_time": "00:00:11",
+    "best_visible_time": "00:00:10"
+  },
+  {
+    "item_id": 7,
+    "class": "long_sleeve_top",
+    "crop": "apparel_7_long_sleeve_top.jpg",
+    "first_visible_time": "00:00:08",
+    "last_visible_time": "00:00:09",
+    "best_visible_time": "00:00:09"
+  },
+  {
+    "item_id": 8,
+    "class": "long_sleeve_dress",
+    "crop": "apparel_8_long_sleeve_dress.jpg",
+    "first_visible_time": "00:00:09",
+    "last_visible_time": "00:00:11",
+    "best_visible_time": "00:00:10"
+  },
+  {
+    "item_id": 9,
+    "class": "short_sleeve_dress",
+    "crop": "apparel_9_short_sleeve_dress.jpg",
+    "first_visible_time": "00:00:10",
+    "last_visible_time": "00:00:11",
+    "best_visible_time": "00:00:11"
+  },
+  {
+    "item_id": 10,
+    "class": "short_sleeve_top",
+    "crop": "apparel_10_short_sleeve_top.jpg",
+    "first_visible_time": "00:00:10",
+    "last_visible_time": "00:00:10",
+    "best_visible_time": "00:00:10"
+  },
+  {
+    "item_id": 11,
+    "class": "long_sleeve_top",
+    "crop": "apparel_11_long_sleeve_top.jpg",
+    "first_visible_time": "00:00:10",
+    "last_visible_time": "00:00:10",
+    "best_visible_time": "00:00:10"
+  },
+  {
+    "item_id": 12,
+    "class": "short_sleeve_top",
+    "crop": "apparel_12_short_sleeve_top.jpg",
+    "first_visible_time": "00:00:11",
+    "last_visible_time": "00:00:12",
+    "best_visible_time": "00:00:11"
+  },
+  {
+    "item_id": 13,
+    "class": "long_sleeve_outwear",
+    "crop": "apparel_13_long_sleeve_outwear.jpg",
+    "first_visible_time": "00:00:12",
+    "last_visible_time": "00:00:13",
+    "best_visible_time": "00:00:13"
+  },
+  {
+    "item_id": 14,
+    "class": "long_sleeve_top",
+    "crop": "apparel_14_long_sleeve_top.jpg",
+    "first_visible_time": "00:00:15",
+    "last_visible_time": "00:00:18",
+    "best_visible_time": "00:00:16"
+  },
+  {
+    "item_id": 15,
+    "class": "short_sleeve_top",
+    "crop": "apparel_15_short_sleeve_top.jpg",
+    "first_visible_time": "00:00:16",
+    "last_visible_time": "00:00:17",
+    "best_visible_time": "00:00:16"
+  },
+  {
+    "item_id": 16,
+    "class": "long_sleeve_top",
+    "crop": "apparel_16_long_sleeve_top.jpg",
+    "first_visible_time": "00:00:16",
+    "last_visible_time": "00:00:17",
+    "best_visible_time": "00:00:17"
+  },
+  {
+    "item_id": 17,
+    "class": "long_sleeve_outwear",
+    "crop": "apparel_17_long_sleeve_outwear.jpg",
+    "first_visible_time": "00:00:16",
+    "last_visible_time": "00:00:17",
+    "best_visible_time": "00:00:16"
+  },
+  {
+    "item_id": 18,
+    "class": "short_sleeve_top",
+    "crop": "apparel_18_short_sleeve_top.jpg",
+    "first_visible_time": "00:00:20",
+    "last_visible_time": "00:00:20",
+    "best_visible_time": "00:00:20"
+  },
+  {
+    "item_id": 19,
+    "class": "long_sleeve_top",
+    "crop": "apparel_19_long_sleeve_top.jpg",
+    "first_visible_time": "00:00:20",
+    "last_visible_time": "00:00:21",
+    "best_visible_time": "00:00:21"
+  },
+  {
+    "item_id": 20,
+    "class": "short_sleeve_top",
+    "crop": "apparel_20_short_sleeve_top.jpg",
+    "first_visible_time": "00:00:24",
+    "last_visible_time": "00:00:26",
+    "best_visible_time": "00:00:26"
+  },
+  {
+    "item_id": 21,
+    "class": "short_sleeve_top",
+    "crop": "apparel_21_short_sleeve_top.jpg",
+    "first_visible_time": "00:00:24",
+    "last_visible_time": "00:00:24",
+    "best_visible_time": "00:00:24"
+  },
+  {
+    "item_id": 22,
+    "class": "short_sleeve_dress",
+    "crop": "apparel_22_short_sleeve_dress.jpg",
+    "first_visible_time": "00:00:25",
+    "last_visible_time": "00:00:25",
+    "best_visible_time": "00:00:25"
+  },
+  {
+    "item_id": 23,
+    "class": "long_sleeve_dress",
+    "crop": "apparel_23_long_sleeve_dress.jpg",
+    "first_visible_time": "00:00:25",
+    "last_visible_time": "00:00:26",
+    "best_visible_time": "00:00:25"
+  },
+  {
+    "item_id": 24,
+    "class": "short_sleeve_top",
+    "crop": "apparel_24_short_sleeve_top.jpg",
+    "first_visible_time": "00:00:27",
+    "last_visible_time": "00:00:30",
+    "best_visible_time": "00:00:28"
+  },
+  {
+    "item_id": 25,
+    "class": "long_sleeve_top",
+    "crop": "apparel_25_long_sleeve_top.jpg",
+    "first_visible_time": "00:00:28",
+    "last_visible_time": "00:00:30",
+    "best_visible_time": "00:00:29"
+  },
+  {
+    "item_id": 26,
+    "class": "short_sleeve_top",
+    "crop": "apparel_26_short_sleeve_top.jpg",
+    "first_visible_time": "00:00:30",
+    "last_visible_time": "00:00:32",
+    "best_visible_time": "00:00:30"
+  },
+  {
+    "item_id": 27,
+    "class": "trousers",
+    "crop": "apparel_27_trousers.jpg",
+    "first_visible_time": "00:00:31",
+    "last_visible_time": "00:00:31",
+    "best_visible_time": "00:00:31"
+  },
+  {
+    "item_id": 28,
+    "class": "long_sleeve_dress",
+    "crop": "apparel_28_long_sleeve_dress.jpg",
+    "first_visible_time": "00:00:32",
+    "last_visible_time": "00:00:32",
+    "best_visible_time": "00:00:32"
+  },
+  {
+    "item_id": 29,
+    "class": "short_sleeve_top",
+    "crop": "apparel_29_short_sleeve_top.jpg",
+    "first_visible_time": "00:00:32",
+    "last_visible_time": "00:00:34",
+    "best_visible_time": "00:00:32"
+  },
+  {
+    "item_id": 30,
+    "class": "short_sleeve_top",
+    "crop": "apparel_30_short_sleeve_top.jpg",
+    "first_visible_time": "00:00:35",
+    "last_visible_time": "00:00:35",
+    "best_visible_time": "00:00:35"
+  },
+  {
+    "item_id": 31,
+    "class": "short_sleeve_top",
+    "crop": "apparel_31_short_sleeve_top.jpg",
+    "first_visible_time": "00:00:35",
+    "last_visible_time": "00:00:35",
+    "best_visible_time": "00:00:35"
+  }
+]
