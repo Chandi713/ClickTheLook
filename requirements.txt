@@ -1,0 +1,43 @@
+# ClickTheLook Training Pipeline - Requirements
+# Python 3.8+ recommended
+
+# Core ML/DL
+ultralytics==8.3.0          # YOLO11 model training and inference
+torch>=2.0.0                # PyTorch backend
+torchvision>=0.15.0         # Vision utilities
+
+# Data Processing
+pandas>=2.0.0               # DataFrame operations
+numpy>=1.24.0               # Numerical operations
+
+# Image Processing
+opencv-python>=4.8.0        # Image/video processing
+Pillow>=10.0.0              # Image loading and manipulation
+
+# Visualization
+matplotlib>=3.7.0           # Plotting and visualization
+seaborn>=0.12.0             # Statistical visualizations (optional)
+
+# Progress Bars
+tqdm>=4.65.0                # Progress bars for loops
+
+# Configuration
+pyyaml>=6.0                 # YAML config file handling
+python-dotenv>=1.0.0        # .env file loading (config.py)
+
+# Experiment tracking
+mlflow>=2.13.0              # Run tracking, metrics, artifacts dashboard
+
+# Object Tracking (for video pipeline)
+supervision>=0.16.0         # ByteTrack integration and annotations
+
+# Jupyter
+jupyter>=1.0.0              # Jupyter notebook
+ipywidgets>=8.0.0           # Interactive widgets for notebooks
+
+# Optional - for advanced features
+# onnx>=1.14.0              # ONNX export
+# onnxruntime>=1.15.0       # ONNX inference
+# albumentations>=1.3.0     # Advanced augmentations
+# wandb>=0.15.0             # Experiment tracking
+# tensorboard>=2.13.0       # Training visualization
