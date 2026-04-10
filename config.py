@@ -112,6 +112,19 @@ if torch.cuda.device_count() > 1:
     TRAINING_CONFIG["batch"] *= torch.cuda.device_count()
 
 # ---------------------------------------------------------------------------
+# Live detection + tracking
+# ---------------------------------------------------------------------------
+LIVE_CONFIG = {
+    "conf":                0.5,
+    "iou":                 0.45,
+    "device":              DEVICE,
+    "tracker_max_age":     5,       # frames to keep a track alive without detections
+    "tracker_min_hits":    2,       # minimum detections before track is confirmed
+    "tracker_iou_thresh":  0.2,     # IoU threshold for SORT association
+    "line_thickness":      2,
+}
+
+# ---------------------------------------------------------------------------
 # Directory initialisation
 # ---------------------------------------------------------------------------
 for _d in [YOLO_DATASET_DIR, TRAINING_OUTPUT_DIR, WEIGHTS_DIR, EXPORTS_DIR]:

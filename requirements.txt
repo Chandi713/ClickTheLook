@@ -30,6 +30,8 @@ mlflow>=2.13.0              # Run tracking, metrics, artifacts dashboard
 
 # Object Tracking (for video pipeline)
 supervision>=0.16.0         # ByteTrack integration and annotations
+filterpy>=1.4.5             # Kalman filter (used by SORT tracker)
+scikit-image>=0.20.0        # Image utilities (SORT dependency)
 
 # Jupyter
 jupyter>=1.0.0              # Jupyter notebook
