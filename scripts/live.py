@@ -50,6 +50,10 @@ def main():
                         help="Disable display window.")
     parser.add_argument("--save", default=None,
                         help="Path to save annotated output video.")
+    parser.add_argument("--verbose", action="store_true",
+                        help="Print per-frame track IDs to stdout.")
+    parser.add_argument("--no-log", action="store_true",
+                        help="Disable JSON run logging to logs/.")
 
     # Compare mode args
     parser.add_argument("--model-a", default=None,
@@ -91,6 +95,8 @@ def main():
             device=args.device,
             show=not args.no_show,
             save_video=args.save,
+            verbose=args.verbose,
+            enable_logging=not args.no_log,
         )
 
 

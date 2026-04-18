@@ -17,7 +17,7 @@ def init_tracker(max_age: int = 5, min_hits: int = 2, iou_thresh: float = 0.2) -
 _TRACK_COLORS = [(randint(0, 255), randint(0, 255), randint(0, 255)) for _ in range(5000)]
 
 
-def update_tracker(tracker: Sort, detections: np.ndarray) -> np.ndarray:
+def update_tracker(tracker: Sort, detections: np.ndarray, frame=None) -> np.ndarray:
     """
     Feed detections into SORT and return tracked objects.
 
@@ -26,6 +26,7 @@ def update_tracker(tracker: Sort, detections: np.ndarray) -> np.ndarray:
     tracker : Sort instance
     detections : np.ndarray of shape (N, 6) — [x1, y1, x2, y2, conf, class_id]
                  Pass np.empty((0, 6)) if no detections this frame.
+    frame : unused — accepted for interface compatibility with deepsort_tracker.
 
     Returns
     -------

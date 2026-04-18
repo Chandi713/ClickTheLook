@@ -114,14 +114,27 @@ if torch.cuda.device_count() > 1:
 # ---------------------------------------------------------------------------
 # Live detection + tracking
 # ---------------------------------------------------------------------------
+
+# Set to "deepsort" or "sort". Changing this one value swaps the tracker.
+# To remove DeepSort entirely: delete src/live/deepsort_tracker.py and set "sort".
+TRACKER_BACKEND = os.getenv("TRACKER_BACKEND", "deepsort")
+
 LIVE_CONFIG = {
     "conf":                0.5,
     "iou":                 0.45,
     "device":              DEVICE,
-    "tracker_max_age":     5,       # frames to keep a track alive without detections
-    "tracker_min_hits":    2,       # minimum detections before track is confirmed
-    "tracker_iou_thresh":  0.2,     # IoU threshold for SORT association
     "line_thickness":      2,
+
+    # SORT settings (used when TRACKER_BACKEND = "sort")
+    "tracker_max_age":     5,
+    "tracker_min_hits":    2,
+    "tracker_iou_thresh":  0.2,
+
+    # DeepSort settings (used when TRACKER_BACKEND = "deepsort")
+    "deepsort_max_age":              30,   # frames before a lost track is deleted
+    "deepsort_n_init":               3,    # detections needed to confirm a track
+    "deepsort_max_cosine_distance":  0.3,  # appearance similarity threshold
+    "deepsort_embedder":             "mobilenet",  # built-in embedder, no extra model needed
 }
 
 # ---------------------------------------------------------------------------
