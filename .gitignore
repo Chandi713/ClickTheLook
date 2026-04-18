@@ -28,6 +28,8 @@ ENV/
 
 # Data
 data/
+*.mp4
+*.mov
 
 # Logs
 logs/
