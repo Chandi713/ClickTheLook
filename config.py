@@ -131,7 +131,7 @@ LIVE_CONFIG = {
     "tracker_iou_thresh":  0.2,
 
     # DeepSort settings (used when TRACKER_BACKEND = "deepsort")
-    "deepsort_max_age":              30,   # frames before a lost track is deleted
+    "deepsort_max_age":              15,   # frames before a lost track is deleted
     "deepsort_n_init":               3,    # detections needed to confirm a track
     "deepsort_max_cosine_distance":  0.3,  # appearance similarity threshold
     "deepsort_embedder":             "mobilenet",  # built-in embedder, no extra model needed

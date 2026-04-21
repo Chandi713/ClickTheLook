@@ -14,7 +14,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from ultralytics import YOLO
 
+from pathlib import Path
+
 from config import CATEGORIES, INFERENCE_MODEL_PATH, LIVE_CONFIG, TRACKER_BACKEND
+
+_DETECTIONS_DIR = Path(__file__).resolve().parents[2] / "detections"
 from src.live.run_logger import RunLogger, extract_model_info
 
 if TRACKER_BACKEND == "deepsort":
@@ -125,8 +129,9 @@ def run_live_detection(
         print(f"Logging enabled — run ID: {logger.run_id}")
 
     # ── Frame loop ────────────────────────────────────────────────────────────
-    frame_idx = 0
-    t_start   = time.time()
+    frame_idx  = 0
+    t_start    = time.time()
+    best_crops: dict = {}  # track_id -> {area, crop, class_name}
 
     try:
         while True:
@@ -154,6 +159,23 @@ def run_live_detection(
             t1 = time.perf_counter()
             tracked = update_tracker(tracker, dets, frame)
             t_track = (time.perf_counter() - t1) * 1000.0
+
+            # ── Best-frame crop tracking ──────────────────────────────────
+            if len(tracked) > 0:
+                fh, fw = frame.shape[:2]
+                for row in tracked:
+                    x1c = max(0, int(row[0]))
+                    y1c = max(0, int(row[1]))
+                    x2c = min(fw, int(row[2]))
+                    y2c = min(fh, int(row[3]))
+                    tid  = int(row[8])
+                    area = (x2c - x1c) * (y2c - y1c)
+                    if area > best_crops.get(tid, {}).get("area", -1) and area > 0:
+                        best_crops[tid] = {
+                            "area":       area,
+                            "crop":       frame[y1c:y2c, x1c:x2c].copy(),
+                            "class_name": CATEGORIES.get(int(row[4]) + 1, str(int(row[4]))),
+                        }
 
             # ── Draw ──────────────────────────────────────────────────────
             t2 = time.perf_counter()
@@ -225,6 +247,19 @@ def run_live_detection(
         elapsed = time.time() - t_start
         avg_fps = frame_idx / elapsed if elapsed > 0 else 0
         print(f"\nDone. {frame_idx} frames in {elapsed:.1f}s ({avg_fps:.1f} FPS avg)")
+
+        if best_crops:
+            from datetime import datetime
+            run_id  = logger.run_id if logger is not None else datetime.now().strftime("%Y%m%d_%H%M%S")
+            det_dir = _DETECTIONS_DIR / run_id
+            det_dir.mkdir(parents=True, exist_ok=True)
+            saved = 0
+            for tid, info in best_crops.items():
+                crop = info["crop"]
+                if crop is not None and crop.size > 0:
+                    cv2.imwrite(str(det_dir / f"{tid}_{info['class_name']}.jpg"), crop)
+                    saved += 1
+            print(f"Crops    : {saved} saved → {det_dir}")
 
         if logger is not None:
             log_path = logger.finalize(frame_idx, elapsed)

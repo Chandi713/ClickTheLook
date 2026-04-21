@@ -31,6 +31,9 @@ data/
 *.mp4
 *.mov
 
+# Results
+detections/
+
 # Logs
 logs/
 

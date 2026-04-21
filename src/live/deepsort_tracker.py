@@ -107,12 +107,12 @@ def draw_tracks(
     line_thickness: int = 2,
 ) -> np.ndarray:
     """Draw bounding boxes, track IDs, and centroid trails on frame."""
-    for tid, history in tracker.centroid_history.items():
-        color = _TRACK_COLORS[tid % len(_TRACK_COLORS)]
-        for i in range(len(history) - 1):
-            pt1 = (int(history[i][0]), int(history[i][1]))
-            pt2 = (int(history[i + 1][0]), int(history[i + 1][1]))
-            cv2.line(frame, pt1, pt2, color, thickness=3)
+    # for tid, history in tracker.centroid_history.items():
+    #     color = _TRACK_COLORS[tid % len(_TRACK_COLORS)]
+    #     for i in range(len(history) - 1):
+    #         pt1 = (int(history[i][0]), int(history[i][1]))
+    #         pt2 = (int(history[i + 1][0]), int(history[i + 1][1]))
+    #         cv2.line(frame, pt1, pt2, color, thickness=3)
 
     if len(tracked_dets) > 0:
         bbox_xyxy = tracked_dets[:, :4]
