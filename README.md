@@ -1,6 +1,6 @@
 # ClickTheLook
 
-An end-to-end video fashion intelligence pipeline. Starting from raw DeepFashion2 annotations, it fine-tunes a YOLO8s model to detect clothing items across 13 categories, then runs that model on video — tracking each garment across frames, assigning it a stable identity, selecting its best-quality crop, and producing a time-indexed JSON manifest with precise timestamps. The output is designed to power downstream applications such as "shop the look" overlays and visual fashion search.
+An end-to-end video fashion intelligence pipeline. Starting from raw DeepFashion2 annotations, it fine-tunes a YOLOv8s model to detect clothing items across 13 categories, then runs that model on video — tracking each garment across frames, assigning it a stable identity, selecting its best-quality crop, and producing a time-indexed JSON manifest with precise timestamps. The output is designed to power downstream applications such as "shop the look" overlays and visual fashion search.
 
 ---
 
@@ -8,9 +8,9 @@ An end-to-end video fashion intelligence pipeline. Starting from raw DeepFashion
 
 ClickTheLook is split into two phases:
 
-**Phase 1 — Training:** Converts DeepFashion2 annotations into YOLO format, trains a YOLO8s detection model, evaluates it on a held-out validation set, and saves the best-performing weights to a managed model registry. All metrics and artifacts are tracked in MLflow.
+**Phase 1 — Training:** Converts DeepFashion2 annotations into YOLO format, trains a YOLOv8s detection model, evaluates it on a held-out validation set, and saves the best-performing weights to a managed model registry. All metrics and artifacts are tracked in MLflow.
 
-**Phase 2 — Inference:** Takes a video file and the trained model, runs the full detection and tracking pipeline frame by frame, and produces a structured JSON file listing every clothing item detected — its category, a cropped image, and the exact timestamps for every window in which it was visible.
+**Phase 2 — Inference:** Takes a video file and the trained model, runs the full detection and tracking pipeline frame by frame, and produces a structured JSON file listing every clothing item detected - its category, a cropped image, and the exact timestamps for every window in which it was visible.
 
 ---
 
@@ -24,17 +24,18 @@ Want to test the system without setting up the full project? The `Demo/` folder 
 Demo/
 ├── Demo.ipynb          # Full inference pipeline — run all cells top to bottom
 ├── requirements.txt    # All dependencies, install once
-└── best.pt             # Fine-tuned YOLO8s weights, ready to use
+├── best.pt             # Fine-tuned YOLOv8s weights, ready to use
+└── test_video.mp4      # Sample video for testing
 ```
 
 **Steps to run:**
 
 1. Place your input video inside `Demo/` or any sub-folder within it.
-2. Open `Demo.ipynb` and edit the paths in **Step 2 (Paths and Settings)** — this is the only cell you need to touch:
+2. Open `Demo/Demo.ipynb` and edit the paths in **Step 2 (Paths and Settings)** - this is the only cell you need to touch:
 
 ```python
 VIDEO_PATH      = "./your_video.mp4"          # path to input video
-MODEL_PATH      = "./your_model.pt"           # path to model weights
+MODEL_PATH      = "./best.pt"                 # path to model weights
 SAVE_VIDEO      = "./output/annotated.mp4"    # where to save annotated video
 OUTPUT_BASE_DIR = "./output"                  # all output folders created automatically
 ```
@@ -68,7 +69,7 @@ DeepFashion2 Dataset (CSV + images)
          │
          ▼
 ┌────────────────────────┐
-│  YOLO8s Fine-tuning    │  AdamW + cosine LR decay + AMP; input size 512×512;
+│  YOLOv8s Fine-tuning   │  AdamW + cosine LR decay + AMP; input size 512×512;
 │                        │  batch 64; label smoothing; mosaic & HSV augmentation
 └────────┬───────────────┘
          │
@@ -86,7 +87,7 @@ DeepFashion2 Dataset (CSV + images)
 └────────┬───────────────┘
          │
          ▼
-  artifacts/weights/best.pt
+  runs/weights/best.pt
 ```
 
 ### Phase 2 — Inference Pipeline
@@ -102,8 +103,8 @@ Input Video + best.pt
          │
          ▼
 ┌────────────────────────┐
-│  Clothing Detection    │  YOLO8s detects garments per frame; filtered by
-│  (YOLO8s)              │  confidence ≥ 0.50 and NMS IoU 0.45
+│  Clothing Detection    │  YOLOv8s detects garments per frame; filtered by
+│  (YOLOv8s)             │  confidence ≥ 0.50 and NMS IoU 0.45
 └────────┬───────────────┘
          │
          ▼
@@ -147,7 +148,7 @@ Input Video + best.pt
 ## Features
 
 - **DeepFashion2 data pipeline** — streams CSVs, converts annotations to YOLO format, and carves a reproducible test split
-- **YOLO8s fine-tuning** — 13-class clothing detection with AMP, cosine LR, and mosaic augmentation
+- **YOLOv8s fine-tuning** — 13-class clothing detection with AMP, cosine LR, and mosaic augmentation
 - **Validation & per-class evaluation** — mAP50, mAP50-95, precision, recall, and AP50 per category
 - **Model registry** — automatically tracks best and second-best weights by mAP50 across training runs
 - **DeepSORT tracking** — maintains garment identity across frames using motion and appearance
@@ -165,7 +166,7 @@ Input Video + best.pt
 
 | Component               | Technology                         |
 |-------------------------|------------------------------------|
-| Object Detection        | Ultralytics YOLO8s                 |
+| Object Detection        | Ultralytics YOLOv8s                |
 | Multi-Object Tracking   | DeepSORT (`deep-sort-realtime`)    |
 | Video Processing        | OpenCV                             |
 | Dataset                 | DeepFashion2 (13 clothing classes) |
@@ -208,12 +209,12 @@ pip install -r requirements.txt
 ```env
 DATA_ROOT=/path/to/deepfashion2
 YOLO_DATASET_DIR=./data/yolo
-TRAINING_OUTPUT_DIR=./artifacts/runs
-WEIGHTS_DIR=./artifacts/weights
-EXPORTS_DIR=./artifacts/exports
-MLFLOW_TRACKING_URI=./mlruns
+TRAINING_OUTPUT_DIR=./runs
+WEIGHTS_DIR=./runs/weights
+EXPORTS_DIR=./runs/exports
+MLFLOW_TRACKING_URI=./runs/mlflow
 MLFLOW_EXPERIMENT=ClickTheLook
-INFERENCE_MODEL_PATH=./artifacts/weights/best.pt
+INFERENCE_MODEL_PATH=./runs/weights/best.pt
 ```
 
 ---
@@ -226,7 +227,7 @@ INFERENCE_MODEL_PATH=./artifacts/weights/best.pt
 python scripts/main.py
 ```
 
-Runs the full training pipeline: loads DeepFashion2 metadata, converts annotations to YOLO format (skipped if already done), trains YOLO8s, evaluates on the validation set, updates the model registry, and exports to ONNX if the new run is the best so far. All metrics and artifacts are logged to MLflow.
+Runs the full training pipeline: loads DeepFashion2 metadata, converts annotations to YOLO format (skipped if already done), trains YOLOv8s, evaluates on the validation set, updates the model registry, and exports to ONNX if the new run is the best so far. All metrics and artifacts are logged to MLflow.
 
 ### 2. Run the Inference Pipeline on Video
 
@@ -236,13 +237,27 @@ python scripts/live.py --source input.mp4 --save output.mp4
 
 | Argument | Description |
 |---|---|
-| `--source` | Path to input video file |
+| `--source` | Path to input video file (or `0` for webcam) |
 | `--save` | Path to save annotated output video |
+| `--model` | Path to model weights (default: `INFERENCE_MODEL_PATH` from config) |
+| `--conf` | Detection confidence threshold |
+| `--iou` | NMS IoU threshold |
+| `--device` | Device: `cpu`, `mps`, `cuda`, or device index |
 | `--no-show` | Disable real-time preview (recommended for servers) |
+| `--verbose` | Print per-frame track IDs to console |
+| `--no-log` | Disable JSON run logging |
 
-### 3. Run on HPC Cluster
+### 3. Compare Two Models Side-by-Side
 
-Open `Demo.ipynb` on your cluster and edit **Step 2 (Paths and Settings)** only:
+```bash
+python scripts/live.py --compare --source input.mp4 --model-a runs/weights/best.pt --model-b runs/weights/last.pt
+```
+
+Runs both models on the same video and prints a detection statistics summary for each, useful for A/B evaluation after a new training run.
+
+### 4. Run on HPC Cluster
+
+Open `Demo/Demo.ipynb` on your cluster and edit **Step 2 (Paths and Settings)** only:
 
 ```python
 VIDEO_PATH      = "/path/to/input.mp4"
@@ -254,10 +269,10 @@ MLFLOW_TRACKING_URI = "./mlruns"
 
 Then run all cells top to bottom. No other project files are needed — all logic is self-contained in the notebook.
 
-### 4. View MLflow Results
+### 5. View MLflow Results
 
 ```bash
-mlflow ui --backend-store-uri ./mlruns
+mlflow ui --backend-store-uri ./runs/mlflow
 ```
 
 Open `http://localhost:5000` to browse training metrics, inference run stats, and logged artifacts.
@@ -266,7 +281,7 @@ Open `http://localhost:5000` to browse training metrics, inference run stats, an
 
 ## Configuration
 
-All parameters are centralised in `config.py` (scripts) or **Step 2** of `Demo.ipynb` (HPC).
+All parameters are centralised in `config.py` (scripts) or **Step 2** of `Demo/Demo.ipynb` (HPC).
 
 ### Training
 
@@ -324,18 +339,22 @@ All parameters are centralised in `config.py` (scripts) or **Step 2** of `Demo.i
 
 ## Output Structure
 
+Inference outputs are written to three directories at the project root (or `OUTPUT_BASE_DIR` in the notebook):
+
 ```
+logs/
+└── <run_id>.json              # Full diagnostic log (latencies, anomalies, timeline)
+
+detections/
+└── <run_id>/
+    ├── 3_trousers.jpg
+    ├── 7_long_sleeve_top.jpg
+    └── ...                    # Best crop image per identity
+
 output/
-├── logs/
-│   └── <run_id>.json          # Full diagnostic log (latencies, anomalies, timeline)
-├── detections/
-│   └── <run_id>/
-│       ├── 3_trousers.jpg
-│       ├── 7_long_sleeve_top.jpg
-│       └── ...                # Best crop image per identity
-└── output/
-    └── <run_id>.json          # Filtered identity manifest with timestamps
-mlruns/                        # MLflow experiment store
+└── <run_id>.json              # Filtered identity manifest with timestamps
+
+runs/mlflow/                   # MLflow experiment store
 ```
 
 ### Identity JSON Format (`output/<run_id>.json`)
@@ -396,20 +415,22 @@ Every training and inference run automatically logs to MLflow:
 ```
 ClickTheLook/
 ├── config.py                        # All parameters in one place
-├── requirements.txt
+├── requirements.txt                 # Project dependencies
+├── Dockerfile                       # Container build (entrypoint: scripts/main.py)
+├── .dockerignore
 ├── .env                             # Environment variables (not committed)
 │
 ├── scripts/
 │   ├── main.py                      # Full training pipeline entry point
-│   └── live.py                      # Video inference pipeline entry point
+│   └── live.py                      # Video inference & model comparison CLI
 │
 ├── configs/
 │   └── run_config.yaml              # Inference run configuration file
 │
 ├── src/
 │   ├── data/
-│   │   ├── data_loader.py           # Streams DeepFashion2 CSVs in batches
-│   │   ├── data_analysis.py         # Analyses class distribution and annotation stats
+│   │   ├── data_loader.py           # Streams DeepFashion2 CSVs in batches; image symlinking
+│   │   ├── data_analysis.py         # Class distribution analysis and annotation statistics
 │   │   ├── conversion.py            # Converts annotations to YOLO format; carves test split
 │   │   └── dataset.py               # YAML generation, dataset verification, symlink management
 │   │
@@ -426,7 +447,7 @@ ClickTheLook/
 │   │   ├── live_detect.py           # Main frame loop and pipeline orchestration
 │   │   ├── deepsort_tracker.py      # DeepSORT wrapper and appearance embedding extraction
 │   │   ├── tracker.py               # SORT tracker (lightweight fallback)
-│   │   ├── sort.py                  # SORT algorithm implementation
+│   │   ├── sort.py                  # SORT algorithm implementation (Kalman filter + Hungarian)
 │   │   ├── global_id.py             # Global Re-Identification manager
 │   │   ├── run_logger.py            # Per-run statistics collection and JSON log writer
 │   │   └── model_compare.py         # Side-by-side model output comparison utility
@@ -435,13 +456,30 @@ ClickTheLook/
 │       ├── utils.py                 # Shared helpers (disk checks, path verification)
 │       └── cleanup.py               # Removes intermediate data while preserving weights
 │
-├── artifacts/
-│   ├── weights/                     # best.pt, last.pt, scores.json (model registry)
-│   ├── runs/                        # YOLO training run outputs
-│   └── exports/                     # ONNX exported models
+├── Demo/
+│   ├── Demo.ipynb                   # Self-contained HPC inference notebook
+│   ├── requirements.txt             # Demo dependencies
+│   ├── best.pt                      # Fine-tuned YOLOv8s weights
+│   └── test_video.mp4               # Sample video for testing
 │
-├── Demo.ipynb                       # Self-contained HPC inference notebook
-└── mlruns/                          # MLflow tracking store
+├── data/
+│   ├── DeepFashion2/                # Raw dataset (not committed)
+│   └── yolo/                        # Converted YOLO format (generated by conversion.py)
+│
+├── runs/
+│   ├── weights/
+│   │   ├── best.pt                  # Best model by mAP50
+│   │   ├── last.pt                  # Second-best model
+│   │   └── scores.json              # Model registry
+│   ├── exports/
+│   │   └── best.onnx                # ONNX exported model
+│   ├── <run_name>/                  # YOLO training run output (weights, curves, confusion matrix)
+│   └── mlflow/                      # MLflow experiment store
+│
+├── logs/                            # Inference run diagnostic logs (JSON per run)
+├── detections/                      # Per-run identity crop images
+├── output/                          # Inference identity manifests (JSON per run)
+└── Video_Files/                     # Sample and test video files
 ```
 
 ---
@@ -459,4 +497,3 @@ ClickTheLook/
 **Separation of output and logs:** `output/` holds clean, filtered, actionable identity data. `logs/` holds full verbose diagnostics. Downstream consumers only ever need `output/`.
 
 **Single configuration source:** Every threshold — detection, tracking, re-ID, quality, output — is declared once in `config.py` or the notebook's settings cell. There are no defaults scattered across source files.
-
