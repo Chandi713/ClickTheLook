@@ -43,6 +43,7 @@ OUTPUT_BASE_DIR = "./output"                  # all output folders created autom
 
 All output folders (`output/`, `detections/`, `logs/`) are created automatically by the notebook — nothing needs to be set up in advance. When the run completes, the time-indexed JSON manifest and crop images are waiting in `OUTPUT_BASE_DIR`.
 
+Sample Output: https://drive.google.com/file/d/1ns5Ww5o2nxWQoimMm7y-E2-uiw5Lbm1u/view?usp=sharing
 ---
 
 ## Pipeline
@@ -458,3 +459,4 @@ ClickTheLook/
 **Separation of output and logs:** `output/` holds clean, filtered, actionable identity data. `logs/` holds full verbose diagnostics. Downstream consumers only ever need `output/`.
 
 **Single configuration source:** Every threshold — detection, tracking, re-ID, quality, output — is declared once in `config.py` or the notebook's settings cell. There are no defaults scattered across source files.
+

@@ -29,7 +29,6 @@ ENV/
 # Data
 Video_Files/
 data/
-*.mp4
 *.mov
 
 # Results
