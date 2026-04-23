@@ -43,7 +43,7 @@ OUTPUT_BASE_DIR = "./output"                  # all output folders created autom
 
 All output folders (`output/`, `detections/`, `logs/`) are created automatically by the notebook — nothing needs to be set up in advance. When the run completes, the time-indexed JSON manifest and crop images are waiting in `OUTPUT_BASE_DIR`.
 
-Sample Output: https://drive.google.com/file/d/1ns5Ww5o2nxWQoimMm7y-E2-uiw5Lbm1u/view?usp=sharing
+#### **Sample Output:** https://drive.google.com/file/d/1ns5Ww5o2nxWQoimMm7y-E2-uiw5Lbm1u/view?usp=sharing
 ---
 
 ## Pipeline
@@ -138,7 +138,7 @@ Input Video + best.pt
 │  · Crop images per identity (.jpg)         │
 │  · Time-indexed identity JSON              │
 │  · Full diagnostic run log JSON            │
-│  · MLflow experiment record               │
+│  · MLflow experiment record                │
 └────────────────────────────────────────────┘
 ```
 
