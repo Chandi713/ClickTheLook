@@ -41,7 +41,7 @@ detections/
 logs/
 
 # PyTorch / model weights
-*.pt
+runs/weights/*.pt
 *.pth
 *.onnx
 
