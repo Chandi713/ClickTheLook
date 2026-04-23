@@ -4,9 +4,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
 DATA_ROOT = os.path.abspath(os.getenv("DATA_ROOT"))
 
 LOCAL_PATHS = {
@@ -26,17 +23,11 @@ MLFLOW_EXPERIMENT   = os.getenv("MLFLOW_EXPERIMENT",   "ClickTheLook")
 
 INFERENCE_MODEL_PATH = os.path.abspath(os.getenv("INFERENCE_MODEL_PATH", os.path.join(WEIGHTS_DIR, "best.pt")))
 
-# ---------------------------------------------------------------------------
-# Data-loading parameters
-# ---------------------------------------------------------------------------
 CSV_BATCH_SIZE       = 20000
-IMAGE_DOWNLOAD_BATCH = 200       # kept for chunk progress; symlinks make it instant
+IMAGE_DOWNLOAD_BATCH = 200       # chunk size for CSV streaming; symlinks make image resolution instant
 MIN_DISK_FREE_GB     = 5.0
-TEST_SPLIT_RATIO     = 0.10      # fraction of training images held out as final test set
+TEST_SPLIT_RATIO     = 0.10      # held-out fraction of training image filenames for the final test split
 
-# ---------------------------------------------------------------------------
-# Dataset classes
-# ---------------------------------------------------------------------------
 CATEGORIES = {
     1: "short_sleeve_top", 2: "long_sleeve_top",
     3: "short_sleeve_outwear", 4: "long_sleeve_outwear",
@@ -47,24 +38,20 @@ CATEGORIES = {
 NUM_CLASSES = len(CATEGORIES)
 class_names = [CATEGORIES[i + 1] for i in range(NUM_CLASSES)]
 
-# ---------------------------------------------------------------------------
-# Device
-# ---------------------------------------------------------------------------
 if torch.cuda.is_available():
     DEVICE = 0
+elif torch.backends.mps.is_available():
+    DEVICE = "mps"
 else:
     DEVICE = "cpu"
 
-# ---------------------------------------------------------------------------
-# Training hyperparameters
-# ---------------------------------------------------------------------------
 TRAINING_CONFIG = {
-    "model":            "yolo11n.pt",
-    "epochs":           1,             # keep original, can reduce for quick tests
-    "batch":            64,             # increase to better utilize GPU memory
-    "imgsz":            512,            # smaller images → faster training
+    "model":            "yolo8s.pt",
+    "epochs":           1,
+    "batch":            64,
+    "imgsz":            512,
     "patience":         10,
-    # "freeze":           10,             # keep backbone frozen
+    # "freeze":           10,
     "optimizer":        "AdamW",
     "lr0":              0.01,
     "lrf":              0.1,
@@ -76,47 +63,39 @@ TRAINING_CONFIG = {
     "cos_lr":           True,
     "label_smoothing":  0.1,
 
-    # -- Data Augmentation --
     "hsv_h":            0.015,
-    "hsv_s":            0.2,            # reduce saturation shift
-    "hsv_v":            0.2,            # reduce brightness shift
-    "degrees":          5.0,            # smaller rotation
-    "translate":        0.05,           # smaller translation
-    "scale":            0.2,            # smaller scale changes
+    "hsv_s":            0.2,
+    "hsv_v":            0.2,
+    "degrees":          5.0,
+    "translate":        0.05,
+    "scale":            0.2,
     "shear":            0.0,
     "perspective":      0.0,
     "flipud":           0.0,
     "fliplr":           0.5,
-    "mosaic":           0.5,            # partial mosaic
+    "mosaic":           0.5,
     "mixup":            0.0,
-    "amp":              True,           # keep Automatic Mixed Precision
+    "amp":              True,
 
-    # -- Performance / Hardware --
     # "rect":             True,
     "device":           DEVICE,
-    "workers":          8,              # more dataloader workers
-    # "cache":            "disk",         # cache dataset in RAM for speed
+    "workers":          8,
+    # "cache":            "disk",
     "cache":            False,
 
-    # -- Output & logging --
     "project":          TRAINING_OUTPUT_DIR,
-    "name":             "yolo11_deepfashion2",
+    "name":             "yolo8s_deepfashion2",
     "exist_ok":         True,
     "pretrained":       True,
     "verbose":          True,
-    "val":              False,          # skip validation for faster epoch iteration
+    "val":              False,          # Ultralytics val loop each epoch (slower)
 }
 
 if torch.cuda.device_count() > 1:
     TRAINING_CONFIG["device"] = list(range(torch.cuda.device_count()))
     TRAINING_CONFIG["batch"] *= torch.cuda.device_count()
 
-# ---------------------------------------------------------------------------
-# Live detection + tracking
-# ---------------------------------------------------------------------------
-
-# Set to "deepsort" or "sort". Changing this one value swaps the tracker.
-# To remove DeepSort entirely: delete src/live/deepsort_tracker.py and set "sort".
+# Swap tracker implementation: "deepsort" or "sort". DeepSort lives in src/live/deepsort_tracker.py.
 TRACKER_BACKEND = os.getenv("TRACKER_BACKEND", "deepsort")
 
 LIVE_CONFIG = {
@@ -125,20 +104,25 @@ LIVE_CONFIG = {
     "device":              DEVICE,
     "line_thickness":      2,
 
-    # SORT settings (used when TRACKER_BACKEND = "sort")
     "tracker_max_age":     5,
     "tracker_min_hits":    2,
     "tracker_iou_thresh":  0.2,
 
-    # DeepSort settings (used when TRACKER_BACKEND = "deepsort")
-    "deepsort_max_age":              15,   # frames before a lost track is deleted
-    "deepsort_n_init":               3,    # detections needed to confirm a track
-    "deepsort_max_cosine_distance":  0.3,  # appearance similarity threshold
-    "deepsort_embedder":             "mobilenet",  # built-in embedder, no extra model needed
+    "deepsort_max_age":              5,
+    "deepsort_n_init":               3,
+    "deepsort_max_cosine_distance":  0.3,
+    "deepsort_embedder":             "mobilenet",
+
+    "use_global_ids":          True,
+    "gid_max_gap_s":           43.0,
+    "gid_cosine_threshold":    0.15,
+    "gid_spatial_gate_pps":    50.0,
+
+    "dedup_blur_threshold":    90.0,   # Laplacian variance; below = discard as blurry
+    "dedup_phash_threshold":   13,   # dHash Hamming distance; below = near-duplicate (0–64)
+
+    "output_min_visible_s":    3.0,    # min seconds visible to include identity in output JSON
 }
 
-# ---------------------------------------------------------------------------
-# Directory initialisation
-# ---------------------------------------------------------------------------
 for _d in [YOLO_DATASET_DIR, TRAINING_OUTPUT_DIR, WEIGHTS_DIR, EXPORTS_DIR]:
     os.makedirs(_d, exist_ok=True)

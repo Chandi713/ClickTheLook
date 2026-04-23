@@ -70,7 +70,7 @@ def update_model_registry(model: YOLO, metrics):
     # Path YOLO wrote the best checkpoint for this run
     run_best = os.path.join(
         TRAINING_OUTPUT_DIR,
-        TRAINING_CONFIG.get("name", "yolo11_deepfashion2"),
+        TRAINING_CONFIG.get("name", "yolo8s_deepfashion2"),
         "weights", "best.pt",
     )
 
@@ -90,9 +90,8 @@ def update_model_registry(model: YOLO, metrics):
     best_dest = os.path.join(WEIGHTS_DIR, "best.pt")
     last_dest = os.path.join(WEIGHTS_DIR, "last.pt")
 
-    # ── Case 1: first run OR new is better than stored best ───────────────────
     if best_map50 is None or new_map50 > best_map50:
-        if os.path.exists(best_dest):          # promote old best → last
+        if os.path.exists(best_dest):
             shutil.copy2(best_dest, last_dest)
             scores["last"] = best_map50
         shutil.copy2(run_best, best_dest)
@@ -101,7 +100,6 @@ def update_model_registry(model: YOLO, metrics):
         print(f"  -> NEW BEST  ({new_map50:.4f}). Exporting.")
         return True, "best"
 
-    # ── Case 2: worse than best, but better than last (or no last yet) ────────
     if last_map50 is None or new_map50 > last_map50:
         shutil.copy2(run_best, last_dest)
         scores["last"] = new_map50
@@ -109,12 +107,9 @@ def update_model_registry(model: YOLO, metrics):
         print(f"  -> New LAST  ({new_map50:.4f}). Saved, not exported.")
         return False, "last"
 
-    # ── Case 3: worse than both → discard ─────────────────────────────────────
     print(f"  -> DISCARDED ({new_map50:.4f} <= last {last_map50:.4f}). Nothing saved.")
     return False, "discarded"
 
-
-# ── Internal helpers ──────────────────────────────────────────────────────────
 
 def _load_scores(scores_path: str) -> dict:
     if os.path.exists(scores_path):
@@ -127,8 +122,6 @@ def _save_scores(scores_path: str, scores: dict):
     with open(scores_path, "w") as f:
         json.dump(scores, f, indent=2)
 
-
-# ── CLI ───────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     import argparse

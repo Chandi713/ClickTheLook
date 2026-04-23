@@ -3,13 +3,11 @@ import os
 import random
 import sys
 
-# Ensure the pipeline root is on the path so all packages resolve correctly.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import numpy as np
 import torch
 
-# Reproducibility
 random.seed(42)
 np.random.seed(42)
 torch.manual_seed(42)
@@ -17,7 +15,6 @@ torch.manual_seed(42)
 print("All libraries imported successfully!")
 print(f"PyTorch: {torch.__version__}")
 
-# -- GPU status --
 print("GPU Status:")
 print(f"  CUDA Available: {torch.cuda.is_available()}")
 print(f"  GPU Count: {torch.cuda.device_count()}")
@@ -49,16 +46,10 @@ print(f"CSV Batch  : {CSV_BATCH_SIZE:,} | Image Batch: {IMAGE_DOWNLOAD_BATCH}")
 print(f"Min Free Disk: {MIN_DISK_FREE_GB} GB")
 print(f"Classes    : {NUM_CLASSES}")
 
-# ---------------------------------------------------------------------------
-# 2. Path Verification
-# ---------------------------------------------------------------------------
 from src.utils.utils import get_disk_free_gb, verify_local_paths
 
 verify_local_paths()
 
-# ---------------------------------------------------------------------------
-# 3. Disk Space Check
-# ---------------------------------------------------------------------------
 free = get_disk_free_gb(YOLO_DATASET_DIR)
 print(f"Disk free space: {free:.1f} GB")
 if free < MIN_DISK_FREE_GB:
@@ -68,9 +59,6 @@ elif free < 50:
 else:
     print(f"  Plenty of space.")
 
-# ---------------------------------------------------------------------------
-# 4. Data Exploration
-# ---------------------------------------------------------------------------
 from src.data.data_loader import loader
 from src.data.data_analysis import analyze_metadata
 
@@ -89,14 +77,10 @@ del train_df, val_df
 gc.collect()
 print("Freed exploration DataFrames.")
 
-# ---------------------------------------------------------------------------
-# 5. Batch Conversion: DeepFashion2 → YOLO Format
-# ---------------------------------------------------------------------------
 from src.data.conversion import carve_test_split, convert_split, load_test_filenames
 from src.data.dataset import labels_exist, restore_symlinks, symlinks_valid, test_labels_exist
 from src.data.data_loader import loader as _loader
 
-# ── Carve test split (once, deterministic) ────────────────────────────────────
 test_fnames  = load_test_filenames()
 train_fnames = None
 
@@ -106,7 +90,6 @@ if test_fnames is None:
 else:
     print(f"Test split already carved: {len(test_fnames):,} images held out.")
 
-# ── Convert all splits ────────────────────────────────────────────────────────
 if not labels_exist():
     if train_fnames is None:
         # Compute train fnames as complement of test (only needed here on first run)
@@ -145,23 +128,16 @@ if not test_labels_exist():
         allowed_fnames=test_fnames,
     )
 
-# ---------------------------------------------------------------------------
-# 6. Dataset Verification + YAML
-# ---------------------------------------------------------------------------
 from src.data.dataset import create_dataset_yaml, verify_dataset
 
 verify_dataset()
 yaml_path = create_dataset_yaml()
 
-# ---------------------------------------------------------------------------
-# 7. Model Training
-# ---------------------------------------------------------------------------
 import ultralytics
 print(f"Ultralytics: {ultralytics.__version__}")
 
 from src.training.train import export_model, load_model, train_model, update_model_registry
 
-# ── MLflow: initialise experiment and start run ───────────────────────────────
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 mlflow.set_experiment(MLFLOW_EXPERIMENT)
 active_run = mlflow.start_run(run_name=TRAINING_CONFIG["name"])
@@ -174,16 +150,12 @@ mlflow.log_params({k: str(v) for k, v in TRAINING_CONFIG.items()})
 model = load_model()
 results = train_model(model, yaml_path)
 
-# ---------------------------------------------------------------------------
-# 8. Evaluation
-# ---------------------------------------------------------------------------
 from src.evaluation.evaluate import load_best_model, run_validation, visualize_results
 
 model = load_best_model(model)
 metrics = run_validation(model, yaml_path)
 visualize_results()
 
-# ── MLflow: log validation metrics ────────────────────────────────────────────
 mlflow.log_metrics({
     "mAP50":     metrics.box.map50,
     "mAP50_95":  metrics.box.map,
@@ -194,33 +166,22 @@ for cls_name, ap in zip(class_names, metrics.box.ap50):
     mlflow.log_metric(f"AP50_{cls_name}", ap)
 print("Metrics logged to MLflow.")
 
-# ---------------------------------------------------------------------------
-# 9. Model registry comparison + conditional export
-# ---------------------------------------------------------------------------
 should_export, registry_status = update_model_registry(model, metrics)
 
-# ── MLflow: tag the run outcome ────────────────────────────────────────────────
 mlflow.set_tag("registry_result", registry_status)
 mlflow.set_tag("base_model",      TRAINING_CONFIG["model"])
 mlflow.set_tag("run_name",        TRAINING_CONFIG["name"])
 print(f"Registry result: {registry_status}")
 
-# ---------------------------------------------------------------------------
-# 10. Inference
-# ---------------------------------------------------------------------------
 from src.inference.inference import run_sample_inference
 
 run_sample_inference(model)
 
-# ---------------------------------------------------------------------------
-# 11. Export (only if new model earned best slot)
-# ---------------------------------------------------------------------------
 if should_export:
     export_model(model)
 else:
     print("Model did not improve over stored best. Skipping export.")
 
-# ── MLflow: log artifacts and close run ───────────────────────────────────────
 run_dir = os.path.join(TRAINING_OUTPUT_DIR, TRAINING_CONFIG["name"])
 for fname in ["results.png", "results.csv", "confusion_matrix.png"]:
     p = os.path.join(run_dir, fname)
@@ -240,22 +201,13 @@ print(f"\nMLflow run closed.")
 print(f"Dashboard : mlflow ui --backend-store-uri {MLFLOW_TRACKING_URI}")
 print(f"Then open : http://localhost:5000")
 
-# ---------------------------------------------------------------------------
-# 11. Final Test Evaluation (run only once on your final model)
-# ---------------------------------------------------------------------------
 # Uncomment when you have finalized the model — do NOT run repeatedly.
 # from src.evaluation.evaluate import run_test_evaluation
 # test_metrics = run_test_evaluation(model, yaml_path)
 
-# ---------------------------------------------------------------------------
-# 12. Cleanup (disabled — remove comments to run)
-# ---------------------------------------------------------------------------
 # from src.utils.cleanup import cleanup
 # cleanup(keep_weights=True)
 
-# ---------------------------------------------------------------------------
-# 12. Summary
-# ---------------------------------------------------------------------------
 print("=" * 60)
 print("PIPELINE SUMMARY")
 print("=" * 60)

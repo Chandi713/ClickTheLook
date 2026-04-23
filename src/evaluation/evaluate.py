@@ -14,7 +14,7 @@ from config import TRAINING_CONFIG, TRAINING_OUTPUT_DIR, class_names
 
 def load_best_model(current_model: YOLO) -> YOLO:
     best_path = os.path.join(TRAINING_OUTPUT_DIR,
-                             TRAINING_CONFIG.get("name", "yolo11_deepfashion2"),
+                             TRAINING_CONFIG.get("name", "yolo8s_deepfashion2"),
                              "weights", "best.pt")
     if os.path.exists(best_path):
         print(f"Loading best checkpoint from current run: {best_path}")
@@ -52,7 +52,7 @@ def run_test_evaluation(model: YOLO, yaml_path: str):
 
 
 def visualize_results():
-    rdir = os.path.join(TRAINING_OUTPUT_DIR, TRAINING_CONFIG.get("name", "yolo11_deepfashion2"))
+    rdir = os.path.join(TRAINING_OUTPUT_DIR, TRAINING_CONFIG.get("name", "yolo8s_deepfashion2"))
     for fname, title in [("results.png", "Training Results"), ("confusion_matrix.png", "Confusion Matrix")]:
         p = os.path.join(rdir, fname)
         if os.path.exists(p):

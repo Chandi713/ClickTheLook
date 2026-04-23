@@ -7,12 +7,8 @@ No other files need changes.
 """
 import cv2
 import numpy as np
-from random import randint
 
 from deep_sort_realtime.deepsort_tracker import DeepSort
-
-
-_TRACK_COLORS = [(randint(0, 255), randint(0, 255), randint(0, 255)) for _ in range(5000)]
 
 
 class DeepSortWrapper:
@@ -20,7 +16,7 @@ class DeepSortWrapper:
 
     def __init__(self, tracker: DeepSort):
         self._tracker = tracker
-        self.centroid_history: dict = {}  # track_id -> list of (cx, cy)
+        self.centroid_history: dict = {}
 
     def update(self, detections: np.ndarray, frame: np.ndarray) -> np.ndarray:
         """
@@ -34,7 +30,7 @@ class DeepSortWrapper:
         (M, 9) array  [x1, y1, x2, y2, class_id, 0, 0, 0, track_id]
         Columns 5-7 are zero-padded to match SORT output shape.
         """
-        # Convert xyxy -> xywh expected by deep_sort_realtime
+        # deep_sort_realtime expects xywh, not YOLO's xyxy.
         raw = []
         for det in detections:
             x1, y1, x2, y2, conf, cls = det
@@ -57,16 +53,26 @@ class DeepSortWrapper:
 
             results.append([x1, y1, x2, y2, cls, 0.0, 0.0, 0.0, tid])
 
-        # Prune history for tracks that are no longer active
         for tid in list(self.centroid_history):
             if tid not in active_ids:
                 del self.centroid_history[tid]
 
         return np.array(results, dtype=float) if results else np.empty((0, 9))
 
+    def get_embeddings(self) -> dict:
+        """Return {track_id: mean_embedding} for all confirmed tracks after last update."""
+        result = {}
+        try:
+            for track in self._tracker.tracker.tracks:
+                if track.is_confirmed() and hasattr(track, "features") and track.features:
+                    result[int(track.track_id)] = np.mean(track.features, axis=0)
+        except Exception:
+            pass
+        return result
+
 
 def init_tracker(
-    max_age: int = 30,
+    max_age: int = 10,
     min_hits: int = 3,
     iou_thresh: float = 0.2,
     max_cosine_distance: float = 0.3,
@@ -105,15 +111,9 @@ def draw_tracks(
     tracked_dets: np.ndarray,
     class_names: dict,
     line_thickness: int = 2,
+    id_map: dict | None = None,
 ) -> np.ndarray:
     """Draw bounding boxes, track IDs, and centroid trails on frame."""
-    # for tid, history in tracker.centroid_history.items():
-    #     color = _TRACK_COLORS[tid % len(_TRACK_COLORS)]
-    #     for i in range(len(history) - 1):
-    #         pt1 = (int(history[i][0]), int(history[i][1]))
-    #         pt2 = (int(history[i + 1][0]), int(history[i + 1][1]))
-    #         cv2.line(frame, pt1, pt2, color, thickness=3)
-
     if len(tracked_dets) > 0:
         bbox_xyxy = tracked_dets[:, :4]
         class_ids = tracked_dets[:, 4]
@@ -124,12 +124,20 @@ def draw_tracks(
             tid = int(track_ids[i])
             cid = int(class_ids[i])
             name = class_names.get(cid + 1, str(cid))
-            label = f"{tid} {name}"
+            display_id = id_map.get(tid, tid) if id_map else tid
+            label = f"{display_id} {name}"
 
             (tw, _th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 1)
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 253), line_thickness)
             cv2.rectangle(frame, (x1, y1 - 20), (x1 + tw, y1), (255, 144, 30), -1)
-            cv2.putText(frame, label, (x1, y1 - 5),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+            cv2.putText(
+                frame,
+                label,
+                (x1, y1 - 5),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                (255, 255, 255),
+                1,
+            )
 
     return frame

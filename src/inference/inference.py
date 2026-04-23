@@ -26,8 +26,8 @@ def run_inference(model: YOLO, image_path: str, conf: float = 0.5) -> dict:
     return {"image_path": image_path, "detections": dets, "results": results}
 
 
-def visualize_inference(result: dict):
-    ann = result["results"][0].plot()
+def visualize_inference(result: dict, show_labels: bool = True):
+    ann = result["results"][0].plot(labels=show_labels, conf=show_labels)
     plt.figure(figsize=(10, 10))
     plt.imshow(cv2.cvtColor(ann, cv2.COLOR_BGR2RGB))
     plt.axis("off")
@@ -56,10 +56,15 @@ if __name__ == "__main__":
                         help="Path to a single image. Omit to run on 4 random val samples.")
     parser.add_argument("--conf", type=float, default=0.5,
                         help="Confidence threshold (default: 0.5).")
+    parser.add_argument("--no-labels", action="store_true",
+                        help="Show bounding boxes only, without class labels or confidence scores.")
     args = parser.parse_args()
 
     model = YOLO(args.model_path)
     if args.image_path:
-        visualize_inference(run_inference(model, args.image_path, conf=args.conf))
+        visualize_inference(
+            run_inference(model, args.image_path, conf=args.conf),
+            show_labels=not args.no_labels,
+        )
     else:
         run_sample_inference(model)

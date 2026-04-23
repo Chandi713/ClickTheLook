@@ -57,7 +57,6 @@ def run_model(model_path: str, source: str, device=None, conf: float = 0.25, iou
 
         class_counts = defaultdict(int)
         for c in classes:
-            # Use ClickTheLook CATEGORIES (1-indexed) for class names
             class_counts[CATEGORIES.get(c + 1, str(c))] += 1
 
         frame_stats.append({
@@ -128,7 +127,6 @@ def print_comparison(stats_a, model_a, stats_b, model_b):
         print(f"{i + 1:>6} | {str(a_dets):>{col}} {a_conf:>{col}} | "
               f"{str(b_dets):>{col}} {b_conf:>{col}}")
 
-    # Summary
     sa = _summarize(stats_a)
     sb = _summarize(stats_b)
 
@@ -150,7 +148,6 @@ def print_comparison(stats_a, model_a, stats_b, model_b):
     for label, va, vb in rows:
         print(f"{label:<30} {str(va):>18} {str(vb):>18}")
 
-    # Class breakdown
     all_classes = sorted(set(list(sa["class_totals"].keys()) + list(sb["class_totals"].keys())))
     if all_classes:
         print(f"\n{'-' * 70}")
@@ -173,9 +170,6 @@ def run_comparison(model_a: str, model_b: str, source: str,
     return stats_a, stats_b
 
 
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
 if __name__ == "__main__":
     import argparse
 

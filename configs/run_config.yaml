@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------
 
 # -- Model --
-model: yolo11n.pt
+model: yolo8s.pt
 
 # -- Core training --
 epochs: 1
@@ -48,4 +48,4 @@ cache: ram   # false | ram | disk
 val: true
 pretrained: true
 verbose: true
-run_name: yolo11_deepfashion2
+run_name: yolo8s_deepfashion2

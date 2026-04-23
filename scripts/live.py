@@ -19,7 +19,6 @@ Usage:
 import os
 import sys
 
-# Ensure pipeline root is on path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
@@ -29,11 +28,9 @@ def main():
     parser = argparse.ArgumentParser(
         description="ClickTheLook — live detection, tracking, and model comparison.",
     )
-    # Mode
     parser.add_argument("--compare", action="store_true",
                         help="Run model comparison mode instead of live detection.")
 
-    # Common
     parser.add_argument("--source", default=0,
                         help="Video source: 0 for webcam, or path to video file.")
     parser.add_argument("--device", default=None,
@@ -43,7 +40,6 @@ def main():
     parser.add_argument("--iou", type=float, default=None,
                         help="NMS IoU threshold.")
 
-    # Live detection args
     parser.add_argument("--model", default=None,
                         help="Path to .pt weights (live detection mode).")
     parser.add_argument("--no-show", action="store_true",
@@ -55,7 +51,6 @@ def main():
     parser.add_argument("--no-log", action="store_true",
                         help="Disable JSON run logging to logs/.")
 
-    # Compare mode args
     parser.add_argument("--model-a", default=None,
                         help="First model for comparison (default: best.pt).")
     parser.add_argument("--model-b", default=None,
